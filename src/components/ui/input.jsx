@@ -12,12 +12,12 @@ export function Input({ label, id, name, type = 'text', ...rest }) {
  id={inputId}
         name={name}
         placeholder=" " // Use placeholder to trigger the floating label effect
-        className="peer w-full px-3 pt-6 pb-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+        className="peer w-full px-3 pt-5 pb-1 text-base border border-gray-300 rounded-md focus:outline-none focus:border-blue-600 transition-all"
         {...rest}
       />
       <label
         htmlFor={inputId}
-        className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:left-0 peer-focus:pl-3 peer-focus:text-sm peer-focus:text-red-500"
+        className="absolute left-3 top-4 text-gray-500 text-base transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1.5 peer-focus:left-3 peer-focus:text-xs peer-focus:text-blue-600"
       >
         {label}
       </label>

@@ -12,18 +12,22 @@ export function Button({ children, variant = 'primary', className = '', ...props
 
   const variants = {
     primary: `
-      text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700
-      focus:ring-primary-500
+      text-white bg-red-500 hover:bg-red-600 active:bg-red-700 
+ focus:ring-red-500
+    `,
+    secondry: `
+      text-white bg-purple-500 hover:bg-purple-600 active:bg-purple-700
+ focus:ring-purple-500
     `,
     outline: `
-      text-primary-500 border border-primary-500
-      hover:bg-primary-50 active:bg-primary-100
-      focus:ring-primary-500
+      text-red-500 border border-red-500
+      hover:bg-red-50 active:bg-red-100
+ focus:ring-red-500
     `,
     ghost: `
-      text-primary-500 bg-transparent
-      hover:bg-primary-50 active:bg-primary-100
-      focus:ring-primary-500
+      text-red-500 bg-transparent
+      hover:bg-red-50 active:bg-red-100
+      focus:ring-red-500
     `,
     disabled: `
       text-gray-400 bg-gray-200 cursor-not-allowed
@@ -38,4 +42,3 @@ export function Button({ children, variant = 'primary', className = '', ...props
     </button>
   );
 }
-

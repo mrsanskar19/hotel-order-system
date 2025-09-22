@@ -74,9 +74,46 @@ const cleanExpiredOrders = () => {
   return orders;
 };
 
+// ✅ Add item to an existing order
+const addItemToOrder = (orderId, item) => {
+  let orders = loadTempOrders();
+  let orderToUpdate = orders.find(order => order.id === orderId);
+
+  if (orderToUpdate) {
+    if (!orderToUpdate.items) {
+      orderToUpdate.items = [];
+    }
+    const newItem = { ...item, status: 'new' }; // Default status 'new'
+    orderToUpdate.items.push(newItem);
+    saveTempOrders(orders);
+    return newItem;
+  } else {
+    return null; // Order not found
+  }
+};
+
+// ✅ Update status of an item in an order
+const updateItemStatusInOrder = (orderId, itemId, status) => {
+  let orders = loadTempOrders();
+  let orderToUpdate = orders.find(order => order.id === orderId);
+
+  if (orderToUpdate && orderToUpdate.items) {
+    const itemToUpdate = orderToUpdate.items.find(item => item.id === itemId);
+    if (itemToUpdate) {
+      itemToUpdate.status = status; // e.g., 'delivered'
+      saveTempOrders(orders);
+      return itemToUpdate;
+    }
+  }
+  return null; // Order or item not found
+};
+
+
+
 // ✅ Export functions
 module.exports = {
-  addOrder,
+  addOrder, addItemToOrder,
+  updateItemStatusInOrder,
   getOrders,
   removeOrder,
   updateOrder,

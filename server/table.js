@@ -73,14 +73,45 @@ const clearAllTables = () => {
   saveTableStatus([]);
 };
 
+// ✅ Update table status by hotelId & tableId
 //
-// ✅ Export functions
+const updateTableStatus = (hotelId, tableId, newStatus) => {
+  let tables = loadTableStatus();
+  let updated = false;
+
+  tables = tables.map(table => {
+    if (table.hotelId === hotelId && table.tableId === tableId) {
+      updated = true;
+      return { ...table,
+        status: newStatus
+      };
+    }
+    return table;
+  });
+
+  if (updated) {
+    saveTableStatus(tables);
+  }
+
+  return updated ? tables : null;
+};
+
 //
+// ✅ Get all orders from a specific table by hotelId & tableId
+//
+const getTableOrders = (hotelId, tableId) => {
+  const tables = loadTableStatus();
+  const table = tables.find(t => t.hotelId === hotelId && t.tableId === tableId);
+  return table ? table.orders : null;
+};
+
+
 module.exports = {
   addTable,
   getTables,
   removeTable,
   updateTable,
   clearAllTables,
+  updateTableStatus,
+  getTableOrders,
 };
-

@@ -2,6 +2,19 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
+const {  addOrder, addItemToOrder,
+  updateItemStatusInOrder,
+  getOrders,
+  removeOrder,
+  updateOrder,
+  cleanExpiredOrders} = require('./server/order');
+const { addTable,
+  getTables,
+  removeTable,
+  updateTable,
+  clearAllTables,
+  updateTableStatus,
+  getTableOrders,} = require('./server/table');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -26,19 +39,28 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log(`User connected with socket ID: ${socket.id}`);
 
-    // Listen for a custom event from the client
-    socket.on('place_order', (orderData) => {
-      console.log(`New order received:`, orderData);
-      
-      // Broadcast the new order to all connected clients
-      io.emit('new_order', {
-        id: orderData.id,
-        item: orderData.item,
-        quantity: orderData.quantity,
-        status: 'Pending',
-        timestamp: new Date().toISOString(),
-      });
+   
+    socket.on('joinTable', (tableId) => {
+      // Logic for joining a table
+      console.log(`Socket ${socket.id} joined table: ${tableId}`);
     });
+
+    socket.on('placeOrder', (orderData) => {
+      // Logic for placing an order
+      console.log(`Socket ${socket.id} placed order: ${JSON.stringify(orderData)}`);
+    });
+
+    socket.on('addItemToOrder', (itemData) => {
+      // Logic for adding item to order
+      console.log(`Socket ${socket.id} added item to order: ${JSON.stringify(itemData)}`);
+    });
+
+    socket.on('closeOrder', (orderId) => {
+      // Logic for closing an order
+      console.log(`Socket ${socket.id} closed order: ${orderId}`);
+    });
+
+
 
     // Handle client disconnect
     socket.on('disconnect', () => {
