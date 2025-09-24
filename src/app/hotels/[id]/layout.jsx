@@ -1,7 +1,7 @@
 "use client"
 import { CartProvider } from "@/hook/useCart";
 import { OrderProvider } from "@/hook/useOrder";
-import { BottomNav } from "@/components/layout";
+import { BottomNav,AppHeader } from "@/components/layout";
 import { CartForm } from "@/components/form"
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react"
@@ -26,7 +26,8 @@ const { id } = useParams();
   return (
     <CartProvider>
       <OrderProvider>
-      <header>Application header</header>
+              <AppHeader hotelId={id}/>
+
         {children}
         {cartVisible && (
           <CartForm/>

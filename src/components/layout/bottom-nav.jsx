@@ -27,7 +27,7 @@ export function BottomNav({ onOpenCart,hotelId }) {
   const ordersLink = `/hotels/${hotelId}/orders`;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 h-20 bg-white shadow-lg rounded-t-3xl z-50 md:hidden">
       <div className="max-w-md mx-auto h-full">
         <div className="grid grid-cols-3 items-center h-full text-center">
 
@@ -48,10 +48,10 @@ export function BottomNav({ onOpenCart,hotelId }) {
               onClick={onOpenCart}
               className="absolute -top-8 flex flex-col items-center justify-center gap-1 bg-white rounded-full w-16 h-16 border-4 border-white shadow-lg"
             >
-              <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white">
+              <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-red-600 text-white">
                 <AiOutlineShoppingCart className="w-6 h-6" />
                 {isClient && totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-[10px] px-1 h-5 min-w-[20px] flex items-center justify-center font-mono">
+<span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-[10px] px-1 h-5 min-w-[20px] flex items-center justify-center font-mono">
                     {totalItems}
                   </span>
                 )}
@@ -60,7 +60,7 @@ export function BottomNav({ onOpenCart,hotelId }) {
           </div>
 
           {/* Orders Link */}
-          <a
+ <a
             href={ordersLink}
             className={`flex flex-col items-center justify-center gap-1 h-full relative ${
               pathname === ordersLink ? 'text-blue-600' : 'text-gray-500'
@@ -68,7 +68,7 @@ export function BottomNav({ onOpenCart,hotelId }) {
           >
             <MdOutlineListAlt className="w-6 h-6" />
             <span className="text-xs font-medium">Orders</span>
-            {isClient && activeOrdersCount > 0 && (
+ {isClient && activeOrdersCount > 0 && (
               <span className="absolute top-2 right-5 bg-red-600 text-white rounded-full text-[10px] px-1 h-5 min-w-[20px] flex items-center justify-center font-mono">
                 {activeOrdersCount}
               </span>
