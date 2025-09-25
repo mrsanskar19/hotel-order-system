@@ -1,8 +1,11 @@
+import { DashboardHeader, Footer } from "@/components/layout";
+
 export default function layout({children}){
   return(
     <main>
-    <div>Header</div>
+    <DashboardHeader/>
       {children}
+      <Footer/>
     </main>
   )
 }

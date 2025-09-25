@@ -1,7 +1,7 @@
 "use client"
 import { CartProvider } from "@/hook/useCart";
 import { OrderProvider } from "@/hook/useOrder";
-import { BottomNav,AppHeader } from "@/components/layout";
+import { AppHeader, Footer } from "@/components/layout";
 import { CartForm } from "@/components/form"
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react"
@@ -32,9 +32,8 @@ const { id } = useParams();
         {cartVisible && (
           <CartForm/>
         )}
-        <BottomNav onOpenCart={()=>setCartVisible(!cartVisible)} hotelId={id}/>
+        <Footer/>
       </OrderProvider>
     </CartProvider>
   )
 }
-
