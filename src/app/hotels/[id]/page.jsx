@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { AppHeader, Footer, BottomNav } from "@/components/layout";
 
 export default function Hotel() {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export default function Hotel() {
       } catch (error) {
         console.error("Error fetching hotel:", error);
       } finally {
-        setLoading(false);
+        
       }
     };
 
@@ -38,10 +39,11 @@ export default function Hotel() {
   }
 
   return (
+  <>
+  
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">{hotel.name}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {hotel.menuItems.map((item) => (
+        {hotel?.menuItems?.map((item) => (
           <div key={item.id} className="border p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">{item.name}</h2>
             <p className="text-gray-700 mb-2">{item.description}</p>
@@ -50,5 +52,6 @@ export default function Hotel() {
         ))}
       </div>
     </div>
+    </>
   );
 }
