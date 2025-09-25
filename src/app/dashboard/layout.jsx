@@ -1,9 +1,9 @@
-import { DashboardHeader, Footer } from "@/components/layout";
+import { AppHeader, Footer } from "@/components/layout";
 
 export default function layout({children}){
   return(
     <main>
-    <DashboardHeader/>
+    <AppHeader/>
       {children}
       <Footer/>
     </main>
