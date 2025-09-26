@@ -1,11 +1,17 @@
-import { AppHeader, Footer } from "@/components/layout";
+import { DashboardSidebar, DashboardBottomNav, DashboardHeader } from "@/components/layout";
+import { OrderProvider } from "@/hook/useOrder"; 
 
-export default function layout({children}){
-  return(
-    <main>
-    <AppHeader/>
-      {children}
-      <Footer/>
-    </main>
-  )
+export default function DashboardLayout({ children }) {
+  return (
+      <OrderProvider>
+        <div className="flex flex-col h-screen">
+          <DashboardHeader />
+          <div className="flex flex-1">
+            <DashboardSidebar />
+            <main className="flex-grow p-4">{children}</main>
+          </div>
+          <DashboardBottomNav />
+        </div>
+      </OrderProvider>
+  );
 }

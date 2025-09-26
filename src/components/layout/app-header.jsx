@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react";
-import { FaUtensils, FaBars, FaTimes, FaSearch } from "react-icons/fa";
+import { FaUtensils, FaBars, FaThemeisle, FaSearchengin, FaBarsStaggered } from "react-icons/fa6";
+import { useSidebar } from ".";
+
 
 export const AppHeader = ({name = "tset",table="01"}) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +29,7 @@ export const AppHeader = ({name = "tset",table="01"}) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-300"
             />
-            <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+            <FaSearchengin className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
@@ -39,7 +41,7 @@ export const AppHeader = ({name = "tset",table="01"}) => {
 
           {/* Mobile Menu Button */}
           <button onClick={toggleMenu} className="md:hidden">
-            {isOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+            {isOpen ? <FaThemeisle size={20} /> : <FaBars size={20} />}
           </button>
         </div>
       </div>
@@ -56,7 +58,7 @@ export const AppHeader = ({name = "tset",table="01"}) => {
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-300"
       />
-      <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+      <FaSearchengin className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
     </div>
 
     {/* Table Info */}
@@ -70,3 +72,21 @@ export const AppHeader = ({name = "tset",table="01"}) => {
   );
 };
 
+
+export const DashboardHeader = () => {
+  const { setSidebarOpen } = useSidebar();
+
+  return (
+    <header className="bg-white shadow-md p-4 flex items-center justify-between">
+      <div className="flex items-center">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="md:hidden mr-4"
+        >
+          <FaBarsStaggered className="h-6 w-6" />
+        </button>
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+      </div>
+    </header>
+  );
+};

@@ -4,7 +4,7 @@ import { OrderProvider } from "@/hook/useOrder";
 import { CartForm } from "@/components/form"
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react"
-import { BottomNav,SidebarNav,AppHeader } from "@/components/layout";
+import { BottomNav,HotelSidebar,AppHeader } from "@/components/layout";
 
 export default function layout({children}){
   const [cartVisible,setCartVisible] = useState(false);
@@ -45,7 +45,7 @@ export default function layout({children}){
   return (
    <CartProvider>
       <OrderProvider>
-      <SidebarNav
+      <HotelSidebar
           hotelId={id}
           onOpenCart={() => setCartVisible(!cartVisible)}
         />

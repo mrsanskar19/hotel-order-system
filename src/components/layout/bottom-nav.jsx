@@ -1,10 +1,12 @@
-'use client';
-
+"use client"
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { AiOutlineHome, AiOutlineShoppingCart } from 'react-icons/ai';
 import { MdOutlineListAlt } from 'react-icons/md';
 import { useCart } from '@/hook/useCart';
 import { useOrder } from '@/hook/useOrder';
+import { BsShop } from 'react-icons/bs';
+import { FiUsers } from 'react-icons/fi';
 
 export function BottomNav({ onOpenCart,hotelId }) {
   const { cartItems } = useCart();
@@ -12,11 +14,12 @@ export function BottomNav({ onOpenCart,hotelId }) {
   const totalItems = cartItems.length;
   const orders = tempOrder;
 
-  const [pathname, setPathname] = useState('');
+  const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+
   }, []);
 
   const activeOrdersCount = isClient
@@ -30,7 +33,7 @@ export function BottomNav({ onOpenCart,hotelId }) {
     <div className="fixed bottom-0 left-0 right-0 h-20 bg-white shadow-lg rounded-t-3xl z-50 md:hidden">
       <div className="max-w-md mx-auto h-full">
         <div className="grid grid-cols-3 items-center h-full text-center">
-
+ 
           {/* Menu Link */}
           <a
             href={menuLink}
@@ -80,3 +83,84 @@ export function BottomNav({ onOpenCart,hotelId }) {
   );
 }
 
+
+export function DashboardBottomNav() {
+  const menuLink = `/dashboard/menu`;
+  const ordersLink = `/dashboard/orders`
+  const customersLink = `/dashboard/customers`;
+  const usersLink = `/dashboard/users`;
+  const settingsLink = `/dashboard/settings`;
+
+  const bottomNavItems = [
+    { href: menuLink, label: 'Menu', icon: <AiOutlineHome className="w-6 h-6" /> },
+    { href: ordersLink, label: 'Orders', icon: <MdOutlineListAlt className="w-6 h-6" /> },
+    { href: customersLink, label: 'Customers', icon: <MdOutlineListAlt className="w-6 h-6" /> },
+    { href: usersLink, label: 'Users', icon: <MdOutlineListAlt className="w-6 h-6" /> },
+    { href: settingsLink, label: 'Settings', icon: <MdOutlineListAlt className="w-6 h-6" /> },
+  ].slice(0, 5); // Ensure max 5 items
+
+  const pathname = usePathname();
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 h-20 bg-gray-900 shadow-lg rounded-t-3xl z-50 md:hidden">
+      <div className="max-w-md mx-auto h-full">
+        <div className="flex items-center h-full text-center">
+ 
+          {bottomNavItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center gap-1 h-full ${
+ pathname === item.href ? 'text-blue-500' : 'text-gray-400'
+              }`}
+            >
+              {item.icon}
+              <span className="text-xs font-medium">{item.label}</span>
+            </a>
+          ))}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export function AdminBottomNav() {
+  const hotelsLink = `/admin/hotels`;
+  const usersLink = `/admin/users`;
+
+  const bottomNavItems = [
+    { href: hotelsLink, label: 'Hotels', icon: <BsShop className="w-6 h-6" /> },
+    { href: usersLink, label: 'Users', icon: <FiUsers className="w-6 h-6" /> },
+  ];
+
+  const pathname = usePathname();
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 h-20 bg-gray-900 shadow-lg rounded-t-3xl z-50 md:hidden">
+      <div className="max-w-md mx-auto h-full">
+        <div className="flex items-center h-full text-center">
+ 
+          {bottomNavItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center gap-1 h-full ${
+ pathname === item.href ? 'text-blue-500' : 'text-gray-400'
+              }`}
+            >
+              {item.icon}
+              <span className="text-xs font-medium">{item.label}</span>
+            </a>
+          ))}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+export { BottomNav,DashboardBottomNav,AdminBottomNav };
