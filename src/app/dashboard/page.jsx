@@ -2,167 +2,186 @@
 
 import { useState, useEffect } from 'react';
 import { socket } from '@/lib/socket';
-import Link from 'next/link';
 
-export default function DashboardPage() {
-  const [tableId, setTableId] = useState('');
-  const [joinedTable, setJoinedTable] = useState(null);
-  const [order, setOrder] = useState(null);
-  const [newItem, setNewItem] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
+const DashboardPage = () => {
+  const [salesData, setSalesData] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    newCustomers: 0, // This will remain static as we can't get this from events
+  });
+
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [topSellingItems, setTopSellingItems] = useState([]);
+  const [tableStatus, setTableStatus] = useState([]);
+  const [isConnected, setIsConnected] = useState(socket.connected);
+
+  // Assuming a static list of tables
+  const allTables = [1, 2, 3, 4, 5, 6];
 
   useEffect(() => {
-    if (!socket) return;
+    const onConnect = () => setIsConnected(true);
+    const onDisconnect = () => setIsConnected(false);
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-      console.log('Client connected');
-    });
+    const onNewOrder = (newOrder) => {
+      const orderAmount = newOrder.items.reduce((acc, item) => acc + (item.price || 10) * item.quantity, 0);
+      const orderForDisplay = {
+        ...newOrder,
+        customer: `Table ${newOrder.tableId}`,
+        amount: orderAmount,
+      };
 
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-      console.log('Client disconnected');
-    });
+      setRecentOrders(prev => [orderForDisplay, ...prev].slice(0, 5));
+      setSalesData(prev => ({
+        ...prev,
+        totalOrders: prev.totalOrders + 1,
+        totalRevenue: prev.totalRevenue + orderAmount,
+      }));
 
-    socket.on('new_order', (newOrder) => {
-      if (newOrder.tableId === joinedTable?.id) {
-        setOrder(newOrder);
-      }
-    });
+      newOrder.items.forEach(item => {
+        setTopSellingItems(prevItems => {
+          const itemIndex = prevItems.findIndex(i => i.name === item.name);
+          if (itemIndex > -1) {
+            const newItems = [...prevItems];
+            newItems[itemIndex].sales += item.quantity;
+            return newItems.sort((a, b) => b.sales - a.sales);
+          } else {
+            return [...prevItems, { name: item.name, sales: item.quantity }].sort((a, b) => b.sales - a.sales);
+          }
+        });
+      });
+    };
 
-    socket.on('order_updated', (updatedOrder) => {
-      if (updatedOrder.tableId === joinedTable?.id) {
-        setOrder(updatedOrder);
-      }
-    });
+    const onOrderUpdated = (updatedOrder) => {
+      const orderAmount = updatedOrder.items.reduce((acc, item) => acc + (item.price || 10) * item.quantity, 0);
+      setRecentOrders(prev => prev.map(o => o.id === updatedOrder.id ? { ...o, ...updatedOrder, amount: orderAmount } : o));
+    };
 
-    socket.on('order_closed', (closedOrderId) => {
-      if (order?.id === closedOrderId) {
-        setOrder(null);
-      }
-    });
+    const onTableUpdated = (tables) => {
+      const occupiedIds = tables.map(t => t.id);
+      setTableStatus(allTables.map(id => ({
+        id,
+        status: occupiedIds.includes(String(id)) ? 'Occupied' : 'Available',
+      })));
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('new_order', onNewOrder);
+    socket.on('order_updated', onOrderUpdated);
+    socket.on('table_updated', onTableUpdated);
 
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('new_order');
-      socket.off('order_updated');
-      socket.off('order_closed');
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('new_order', onNewOrder);
+      socket.off('order_updated', onOrderUpdated);
+      socket.off('table_updated', onTableUpdated);
     };
-  }, [order, joinedTable]);
-
-  const handleJoinTable = () => {
-    if (tableId) {
-      socket.emit('joinTable', tableId, (response) => {
-        if (response.status === 'ok') {
-          setJoinedTable(response.table);
-        }
-      });
-    }
-  };
-
-  const handlePlaceOrder = () => {
-    const orderData = {
-      tableId: joinedTable.id,
-      items: [{ name: 'Initial Item', quantity: 1, status: 'new' }],
-      status: 'Pending',
-    };
-    socket.emit('placeOrder', orderData, (response) => {
-      if (response.status === 'ok') {
-        setOrder(response.order);
-      }
-    });
-  };
-
-  const handleAddItem = () => {
-    if (newItem && order) {
-      const itemData = {
-        orderId: order.id,
-        item: { name: newItem, quantity: 1, status: 'new' },
-      };
-      socket.emit('addItemToOrder', itemData, (response) => {
-        if (response.status === 'ok') {
-          setOrder(response.order);
-          setNewItem('');
-        }
-      });
-    }
-  };
-
-  const handleCloseOrder = () => {
-    if (order) {
-      socket.emit('closeOrder', order.id, (response) => {
-        if (response.status === 'ok') {
-          setOrder(null);
-        }
-      });
-    }
-  };
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        <h1 className="text-3xl font-bold text-center mb-6">Customer Dashboard</h1>
-        <div className="flex justify-center items-center mb-6">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <div className="flex justify-center items-center mb-6">
           <span className={`h-3 w-3 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
           <span className="text-sm">{isConnected ? 'Connected' : 'Disconnected'}</span>
         </div>
 
-        <Link href="/admin">
-          <button className="w-full py-2 px-4 bg-gray-500 text-white rounded-lg mb-4">Go to Admin Page</button>
-        </Link>
+      {/* Sales Analysis */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold text-gray-700">Total Revenue</h2>
+          <p className="text-3xl font-bold">${salesData.totalRevenue.toFixed(2)}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold text-gray-700">Total Orders</h2>
+          <p className="text-3xl font-bold">{salesData.totalOrders}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold text-gray-700">New Customers</h2>
+          <p className="text-3xl font-bold">{salesData.newCustomers}</p>
+        </div>
+      </div>
 
-        {!joinedTable ? (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={tableId}
-              onChange={(e) => setTableId(e.target.value)}
-              placeholder="Enter Table ID"
-              className="flex-grow p-2 border rounded-lg"
-            />
-            <button onClick={handleJoinTable} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-              Join Table
-            </button>
-          </div>
-        ) : (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Table: {joinedTable.id}</h2>
-            {!order ? (
-              <button onClick={handlePlaceOrder} className="w-full py-3 px-6 bg-green-600 text-white rounded-lg">
-                Place New Order
-              </button>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-bold">Order ID: {order.id}</h3>
-                  <p>Status: <span className="font-semibold">{order.status}</span></p>
-                  <ul className="list-disc list-inside mt-2">
-                    {order.items.map((item, index) => (
-                      <li key={index}>{item.name} x{item.quantity} - <span className="text-sm">{item.status}</span></li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newItem}
-                    onChange={(e) => setNewItem(e.target.value)}
-                    placeholder="New Item"
-                    className="flex-grow p-2 border rounded-lg"
-                  />
-                  <button onClick={handleAddItem} className="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                    Add Item
-                  </button>
-                </div>
-                <button onClick={handleCloseOrder} className="w-full py-2 px-4 bg-red-600 text-white rounded-lg">
-                  Close Order
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders Table */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-2">Order ID</th>
+                <th className="text-left p-2">Customer</th>
+                <th className="text-left p-2">Amount</th>
+                <th className="text-left p-2">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.map((order) => (
+                <tr key={order.id} className="border-b last:border-b-0">
+                  <td className="p-2">#{order.id}</td>
+                  <td className="p-2">{order.customer}</td>
+                  <td className="p-2">${order.amount.toFixed(2)}</td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm ${{
+                        Completed: 'bg-green-200 text-green-800',
+                        Pending: 'bg-yellow-200 text-yellow-800',
+                        Cancelled: 'bg-red-200 text-red-800',
+                      }[order.status] || 'bg-gray-200 text-gray-800'}`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Top Selling Items Table */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Top Selling Items</h2>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-2">Item Name</th>
+                <th className="text-left p-2">Total Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topSellingItems.map((item) => (
+                <tr key={item.name} className="border-b last:border-b-0">
+                  <td className="p-2">{item.name}</td>
+                  <td className="p-2">{item.sales}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Table Status */}
+      <div className="mt-6 bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">Table Status</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {tableStatus.map((table) => (
+            <div
+              key={table.id}
+              className={`p-4 rounded-lg text-center font-semibold text-white ${{
+                Occupied: 'bg-red-500',
+                Available: 'bg-green-500',
+                Reserved: 'bg-yellow-500',
+              }[table.status] || 'bg-gray-400'}`}
+            >
+              <p>Table {table.id}</p>
+              <p className="text-sm">{table.status}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardPage;
