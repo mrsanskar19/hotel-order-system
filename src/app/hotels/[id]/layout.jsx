@@ -9,6 +9,7 @@ import { BottomNav,SidebarNav,AppHeader } from "@/components/layout";
 export default function layout({children}){
   const [cartVisible,setCartVisible] = useState(false);
   const [hotel, setHotel] = useState(null);
+  const [tableIdentifier,setTableIdentifier] = useState(null);
   const { id } = useParams();
   const searchParams = useSearchParams();
 
@@ -44,19 +45,28 @@ export default function layout({children}){
   return (
    <CartProvider>
       <OrderProvider>
-      <AppHeader name={hotel?.name} table="01"/>
-        <SidebarNav
+      <SidebarNav
           hotelId={id}
           onOpenCart={() => setCartVisible(!cartVisible)}
         />
+      <AppHeader name={hotel?.name} table={tableIdentifier}/>
 
         {/* Main layout container */}
         <div className="pt-16 md:pl-20 min-h-screen bg-gray-50 relative">
-          {/* Main Scrollable Content */}
-          <main className="px-4 pb-24 md:pb-8">{children}</main>
+          {(tableIdentifier && id) ? (
+           <main className="px-4 pb-24 md:pb-8 z-0">{children}</main>
+           ) : (
+           <div className="flex flex-col justify-center items-center h-screen text-center">
+ <h2 className="text-2xl font-bold mb-4">{tableIdentifier ? "Hotel" : "Table"} not found</h2>
+ <p className="text-gray-700 mb-6">
+ It seems the QR code or link you used is incorrect or expired.
+ </p>
+ <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => window.location.reload()}>Please try rescanning the QR code.</button>
+ </div>
+          )}
 
           {/* Cart Modal or Panel */}
-          {cartVisible && <CartForm />}
+          {cartVisible && <CartForm isOpen={cartVisible} setIsOpen={setCartVisible} />}
 
           {/* BottomNav (Mobile only) */}
           <BottomNav
