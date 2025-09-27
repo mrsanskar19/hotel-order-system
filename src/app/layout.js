@@ -1,13 +1,14 @@
 import "./globals.css";
-import { SidebarProvider,AuthProvider } from "@/components/layout";
+import { SidebarProvider } from "@/components/layout" 
+import { AuthProvider } from "@/hook/useAuth"
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+      <AuthProvider>
           <SidebarProvider>{children}</SidebarProvider>
-        </AuthProvider>
+          </AuthProvider>
       </body>
     </html>
   );

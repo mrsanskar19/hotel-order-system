@@ -1,5 +1,6 @@
 import { DashboardSidebar, DashboardBottomNav, DashboardHeader } from "@/components/layout";
 import { OrderProvider } from "@/hook/useOrder"; 
+import { AuthProvider } from "@/hook/useAuth"; 
 
 export default function DashboardLayout({ children }) {
   return (

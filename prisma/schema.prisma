@@ -3,36 +3,138 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
-model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  createdAt    DateTime      @default(now())
-  subscription Subscription?
+  provider = "postgres"
+  url      = "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19PT2J0bkpZVGsxN2kwaEExLXphS2wiLCJhcGlfa2V5IjoiMDFLNjNHSjdCS1FQRlpFV0ZUODk5NjFaQ1oiLCJ0ZW5hbnRfaWQiOiJlNDdlNWY0OTI4NDBhMTE5M2U4ZmQzYjU0OGIzOTI0Mjg3N2Q0MjBiYjZkMDc5NTA1YWY5Y2VkOGRiMDNhZmI2IiwiaW50ZXJuYWxfc2VjcmV0IjoiNTA3OTZmMDItN2ZiYi00MGE0LTllYTEtOTY1ZDM4ZTljMzY1In0.DmD8fEv-4As1F3GAHp-Yc0-10YhQaft5Mj1fimssXFg"
 }
 
 model Plan {
-  id          String         @id @default(uuid())
-  name        String         @unique
-  price       Int            // In cents: 0 = Free, 1000 = $10
-  features    String?        // Store comma-separated features
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  plan_id       String         @id @default(uuid())
+  name          String         @unique
+  price         Int
+  features      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   subscriptions Subscription[]
 }
 
 model Subscription {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   @unique  // ✅ One-to-one requires this
-  plan       Plan     @relation(fields: [planId], references: [id])
-  planId     String
-  status     String   // e.g. "active", "canceled", "trialing"
-  startDate  DateTime @default(now())
-  endDate    DateTime?
+  subscription_id String    @id @default(uuid())
+  user            Hotel     @relation(fields: [hotel_id], references: [hotel_id])
+  hotel_id        String    @unique
+  plan            Plan      @relation(fields: [plan_id], references: [plan_id])
+  plan_id         String
+  status          String
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
 }
 
+model Category {
+  category_id String  @id @default(uuid())
+  hotel_id    String
+  name        String
+  description String?
+  image       String?
+  hotel       Hotel   @relation(fields: [hotel_id], references: [hotel_id])
+  items       Item[]
+}
+
+model Hotel {
+  hotel_id         String        @id @default(uuid())
+  name             String
+  description      String?
+  email            String?       @unique
+  phone            String?
+  address          String?
+  images           String?
+  active_time      String?
+  parcel_available Boolean?      @default(true)
+  is_active        Boolean       @default(true)
+  is_verify        Boolean       @default(false)
+  username         String        @unique
+  password         String
+  created_at       DateTime      @default(now())
+  upi_id           String?
+  categories       Category[]
+  items            Item[]
+  orders           Order[]
+  reviews          Review[]
+  Subscription     Subscription?
+}
+
+model Item {
+  item_id     String      @id @default(uuid())
+  category_id String
+  hotel_id    String
+  name        String
+  description String?
+  price       Float
+  available   Boolean     @default(true)
+  img         String?
+  veg         Boolean     @default(true)
+  discount    Float?
+  category    Category    @relation(fields: [category_id], references: [category_id])
+  hotel       Hotel       @relation(fields: [hotel_id], references: [hotel_id])
+  orders      OrderItem[]
+  reviews     Review[]
+}
+
+model Customer {
+  customer_id String   @id @default(uuid())
+  email       String?  @unique
+  phone       String?
+  orders      Order[]
+  reviews     Review[]
+}
+
+model Order {
+  order_id     String        @id @default(uuid())
+  hotel_id     String
+  customer_id  String?
+  table_id     String?
+  total_amount Float
+  payment_mode PaymentMethod
+  status       OrderStatus   @default(PENDING)
+  created_at   DateTime      @default(now())
+  customer     Customer?     @relation(fields: [customer_id], references: [customer_id])
+  hotel        Hotel         @relation(fields: [hotel_id], references: [hotel_id])
+  items        OrderItem[]
+}
+
+model OrderItem {
+  order_item_id String @id @default(uuid())
+  order_id      String
+  item_id       String
+  quantity      Int
+  price         Float
+  item          Item   @relation(fields: [item_id], references: [item_id])
+  order         Order  @relation(fields: [order_id], references: [order_id])
+}
+
+model Review {
+  review_id   String   @id @default(uuid())
+  hotel_id    String
+  item_id     String?
+  customer_id String
+  rating      Int
+  comment     String?
+  created_at  DateTime @default(now())
+  customer    Customer @relation(fields: [customer_id], references: [customer_id])
+  hotel       Hotel    @relation(fields: [hotel_id], references: [hotel_id])
+  item        Item?    @relation(fields: [item_id], references: [item_id])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CARD
+  CASH
+  WALLET
+  UPI
+}

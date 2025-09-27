@@ -87,14 +87,14 @@ export function BottomNav({ onOpenCart,hotelId }) {
 export function DashboardBottomNav() {
   const menuLink = `/dashboard/menu`;
   const ordersLink = `/dashboard/orders`
-  const customersLink = `/dashboard/customers`;
+  const categoryLink = `/dashboard/category`;
   const usersLink = `/dashboard/users`;
   const settingsLink = `/dashboard/settings`;
 
   const bottomNavItems = [
     { href: menuLink, label: 'Menu', icon: <AiOutlineHome className="w-6 h-6" /> },
     { href: ordersLink, label: 'Orders', icon: <MdOutlineListAlt className="w-6 h-6" /> },
-    { href: customersLink, label: 'Customers', icon: <MdOutlineListAlt className="w-6 h-6" /> },
+    { href: categoryLink, label: 'Categories', icon: <MdOutlineListAlt className="w-6 h-6" /> },
     { href: usersLink, label: 'Users', icon: <MdOutlineListAlt className="w-6 h-6" /> },
     { href: settingsLink, label: 'Settings', icon: <MdOutlineListAlt className="w-6 h-6" /> },
   ].slice(0, 5); // Ensure max 5 items
@@ -161,6 +161,3 @@ export function AdminBottomNav() {
   );
 }
 
-
-
-export { BottomNav,DashboardBottomNav,AdminBottomNav };

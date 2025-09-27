@@ -83,7 +83,7 @@ const DashboardPage = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       <div className="flex justify-center items-center mb-6">
-          <span className={`h-3 w-3 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+          <span className={`h-3 w-3 rounded-full mr-2 ${isConnected ? "bg-green-500" : "bg-red-500"}`}></span>
           <span className="text-sm">{isConnected ? 'Connected' : 'Disconnected'}</span>
         </div>
 

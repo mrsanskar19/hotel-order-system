@@ -9,7 +9,7 @@ export async function POST(req) {
     const { name, email, password } = body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.hotel.findUnique({
       where: { email },
     });
 
@@ -17,7 +17,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "User already exists" }, { status: 409 });
     }
 
-    const user = await prisma.user.create({
+    const user = await prisma.hotel.create({
       data: {
         name,
         email,
@@ -51,7 +51,7 @@ export async function PATCH(req) {
     if (name) updateData.name = name;
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.hotel.update({
       where: { id: userId },
       data: updateData,
     });
@@ -74,7 +74,7 @@ export async function GET(req) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.hotel.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true }, // Select specific fields
     });

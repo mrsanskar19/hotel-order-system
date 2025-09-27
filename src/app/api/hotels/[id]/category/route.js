@@ -33,8 +33,9 @@ export async function POST(req) {
 }
 export async function GET(req, { params }) {
   const hotelId = params.id;
+  console.log(hotelId)
   try {
-    const categories = await prismadb.category.findMany({ where: { hotelId } });
+    const categories = await prismadb.category.findMany({ where: { hotel_id:hotelId } });
 
     return NextResponse.json(categories);
   } catch (error) {

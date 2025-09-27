@@ -41,7 +41,7 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
     <>
       {/* Sidebar for Desktop */}
       <div className="hidden md:flex md:flex-col md:fixed md:top-0 md:left-0 md:h-full md:w-20 bg-gray-800 text-white shadow-lg z-50">
-        <div className="flex flex-col items-center py-6 space-y-8 h-full mt-10">
+        <div className="flex flex-col items-center py-6 space-y-8 h-full mt-13">
           <Link href={menuLink} className={`flex flex-col items-center gap-1 ${pathname === menuLink ? 'text-blue-400' : 'text-gray-300'} hover:text-blue-400`}>
             <AiOutlineHome className="w-6 h-6" />
             <span className="text-xs">Menu</span>
@@ -108,8 +108,9 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: MdOutlineDashboard },
-    { href: '/dashboard/orders', label: 'Orders', icon: MdOutlineListAlt },
     { href: '/dashboard/menu', label: 'Menu', icon: MdOutlineTableRows },
+    { href: '/dashboard/category', label: 'Categories', icon: MdOutlineTableRows },
+    { href: '/dashboard/orders', label: 'Orders', icon: MdOutlineListAlt },
     { href: '/dashboard/qr-code', label: 'QR Code', icon: MdOutlineQrCode2 },
   ];
 

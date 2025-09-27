@@ -1,12 +1,15 @@
 'use client'
 import { Input, Button } from "@/components/ui"
 import { useState } from "react"
+import { useAuth } from "@/hook/useAuth"
 
 export default function Login({className}){
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   })
+
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -27,7 +30,7 @@ export default function Login({className}){
       if (response.ok) {
         const data = await response.json()
         console.log('Login successful:', data)
-        // Handle successful login, e.g., redirect or show success message
+        login({token:data.token,user:data.user})
       } else {
         const errorData = await response.json()
         console.error('Login failed:', errorData.message)
@@ -53,7 +56,7 @@ export default function Login({className}){
  <a href="#" className="text-blue-600 hover:underline text-sm">Forgot password?</a>
       </div>
       <div className="mt-4 text-center text-sm text-gray-600">
- Don't have an account? <a href="#" className="text-blue-600 hover:underline">Sign up</a>
+ Don't have an account? <a href="/signup" className="text-blue-600 hover:underline">Sign up</a>
       </div>
     </div>
   )
