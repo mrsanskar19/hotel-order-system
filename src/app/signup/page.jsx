@@ -1,4 +1,3 @@
-
 import SignupForm from "@/components/form/signup"
 
 export default function SignupPage() {

@@ -132,4 +132,3 @@ const CategoryForm = ({ mode = "create", categoryId = null, onClose }) => {
 };
 
 export { CategoryForm };
-

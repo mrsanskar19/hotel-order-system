@@ -42,4 +42,3 @@ export async function POST(request) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-

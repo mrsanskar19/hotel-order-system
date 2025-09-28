@@ -15,4 +15,3 @@ export async function PUT(req, { params }) {
   // Update in DB
   return Response.json({ success: true });
 }
-
