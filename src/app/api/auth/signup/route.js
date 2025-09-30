@@ -10,7 +10,7 @@ export async function POST(req) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await prisma.hotel.findUnique({
-      where: { email },
+      where: { username: body.username },
     });
 
     if (existingUser) {
@@ -20,12 +20,13 @@ export async function POST(req) {
     const user = await prisma.hotel.create({
       data: {
         name,
+        username: body.username,
         email,
         password: hashedPassword,
       },
     });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.hotel_id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     return NextResponse.json({ user, token }, { status: 201 });
   } catch (error) {
@@ -52,7 +53,7 @@ export async function PATCH(req) {
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const updatedUser = await prisma.hotel.update({
-      where: { id: userId },
+      where: { hotel_id: userId },
       data: updateData,
     });
 

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb"
 
-export async function GET(request, { params }) {
+export async function GET(request, context) {
+  const { params } = context;
   const { id } = params;
-    const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const categoryId = searchParams.get('categoryId');
 
   let items;
@@ -11,14 +12,14 @@ export async function GET(request, { params }) {
   if (categoryId) {
     items = await prisma.item.findMany({
       where: {
-        hotelId: id,
-        categoryId: categoryId,
+        hotel_id: id,
+        category_id: categoryId,
       },
     });
   } else {
     items = await prisma.item.findMany({
       where: {
-        hotelId: id,
+        hotel_id: id,
       },
     });
   }

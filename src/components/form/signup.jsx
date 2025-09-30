@@ -2,6 +2,7 @@
 
 import { Input, Button, Textarea } from "@/components/ui"
 import { useState } from "react"
+import { useRouter } from "next/navigation";
 
 export default function HotelSignupForm() {
   const [formData, setFormData] = useState({
@@ -19,6 +20,9 @@ export default function HotelSignupForm() {
     description: '',
     images: '', // Comma-separated string
   })
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -30,6 +34,8 @@ export default function HotelSignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
     try {
       const response = await fetch('/api/hotels', {
         method: 'POST',
@@ -42,13 +48,19 @@ export default function HotelSignupForm() {
       if (response.ok) {
         const data = await response.json()
         console.log('Signup successful:', data)
-        // Redirect or toast message here
+        setSuccess('Signup successful! Redirecting to dashboard...')
+        // Save token and user info to localStorage for auth context
+        localStorage.setItem("token", data.token || "")
+        localStorage.setItem("user", JSON.stringify(data.user || {}))
+        router.push("/dashboard")
       } else {
         const errorData = await response.json()
         console.error('Signup failed:', errorData.message)
+        setError(errorData.message || 'Signup failed')
       }
     } catch (error) {
       console.error('Error during signup:', error)
+      setError('Network error. Please try again.')
     }
   }
 
@@ -58,6 +70,8 @@ export default function HotelSignupForm() {
       className="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-lg shadow-md space-y-6"
     >
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Register Your Hotel</h2>
+      {error && <div className="text-red-500 text-center">{error}</div>}
+      {success && <div className="text-green-500 text-center">{success}</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input label="Hotel Name" type="text" name="name" value={formData.name} onChange={handleChange} required />

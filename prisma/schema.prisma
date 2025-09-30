@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgres"
-  url      = "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19PT2J0bkpZVGsxN2kwaEExLXphS2wiLCJhcGlfa2V5IjoiMDFLNjNHSjdCS1FQRlpFV0ZUODk5NjFaQ1oiLCJ0ZW5hbnRfaWQiOiJlNDdlNWY0OTI4NDBhMTE5M2U4ZmQzYjU0OGIzOTI0Mjg3N2Q0MjBiYjZkMDc5NTA1YWY5Y2VkOGRiMDNhZmI2IiwiaW50ZXJuYWxfc2VjcmV0IjoiNTA3OTZmMDItN2ZiYi00MGE0LTllYTEtOTY1ZDM4ZTljMzY1In0.DmD8fEv-4As1F3GAHp-Yc0-10YhQaft5Mj1fimssXFg"
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Plan {
@@ -92,8 +92,8 @@ model Order {
   customer_id  String?
   table_id     String?
   total_amount Float
-  payment_mode PaymentMethod
-  status       OrderStatus   @default(PENDING)
+  payment_mode String
+  status       String       @default("PENDING")
   created_at   DateTime      @default(now())
   customer     Customer?     @relation(fields: [customer_id], references: [customer_id])
   hotel        Hotel         @relation(fields: [hotel_id], references: [hotel_id])
@@ -121,20 +121,4 @@ model Review {
   customer    Customer @relation(fields: [customer_id], references: [customer_id])
   hotel       Hotel    @relation(fields: [hotel_id], references: [hotel_id])
   item        Item?    @relation(fields: [item_id], references: [item_id])
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PREPARING
-  READY
-  DELIVERED
-  CANCELLED
-}
-
-enum PaymentMethod {
-  CARD
-  CASH
-  WALLET
-  UPI
 }

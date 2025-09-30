@@ -31,7 +31,8 @@ export async function POST(req) {
     return new NextResponse("Internal error", { status: 500 });
   }
 }
-export async function GET(req, { params }) {
+export async function GET(req, context) {
+  const { params } = await context;
   const hotelId = params.id;
   console.log(hotelId)
   try {

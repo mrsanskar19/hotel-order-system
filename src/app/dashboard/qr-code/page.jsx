@@ -1,10 +1,11 @@
 "use client";
+
 import { useState, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/hook/useAuth';
 
 const QRCodePage = () => {
-  const searchParams = useSearchParams();
-  const hotelId = searchParams.get('hotelId');
+  const { hotelId } = useAuth();
+  const [tableIdInput, setTableIdInput] = useState('');
   const [tableId, setTableId] = useState('');
 
   const menuUrl = useMemo(() => {
@@ -17,17 +18,27 @@ const QRCodePage = () => {
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(menuUrl)}`;
   }, [menuUrl]);
 
+  const generateQRCode = () => {
+    setTableId(tableIdInput.trim());
+  };
+
   return (
     <div style={{ padding: '2rem' }}>
       <h1 className="text-2xl font-semibold mb-4">Generate QR Code for Table</h1>
       <div className="flex gap-2 mb-4">
         <input
           type="text"
-          value={tableId}
-          onChange={(e) => setTableId(e.target.value)}
+          value={tableIdInput}
+          onChange={(e) => setTableIdInput(e.target.value)}
           placeholder="Enter Table ID"
           className="flex-grow p-2 border rounded-lg"
         />
+        <button
+          onClick={generateQRCode}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Generate QR Code
+        </button>
       </div>
 
       {qrCodeUrl && (

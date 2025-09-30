@@ -1,10 +1,13 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { CategoryForm } from "@/components/form";
-import { MenuItemForm } from "@/components/form"; // You must have this
+import { HotelItemForm } from "@/components/form";
 import { Button } from "@/components/ui";
+import { useAuth } from "@/hook/useAuth";
 
-export default function CategoryPage({ hotelId }) {
+export default function CategoryPage() {
+  const { hotelId } = useAuth();
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState({});
   const [search, setSearch] = useState("");
@@ -18,16 +21,17 @@ export default function CategoryPage({ hotelId }) {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [hotelId]);
 
   const fetchCategories = async () => {
+    if (!hotelId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/${hotelId}/category`);
+      const res = await fetch(`/api/hotels/${hotelId}/category`);
       const data = await res.json();
       setCategories(data);
       for (let cat of data) {
-        fetchMenuItems(cat.id);
+        fetchMenuItems(cat.category_id);
       }
     } catch (err) {
       console.error("Error fetching categories", err);
@@ -38,7 +42,7 @@ export default function CategoryPage({ hotelId }) {
 
   const fetchMenuItems = async (categoryId) => {
     try {
-      const res = await fetch(`/api/categories/${categoryId}/menu-items`);
+      const res = await fetch(`/api/hotels/${hotelId}/items?categoryId=${categoryId}`);
       const data = await res.json();
       setMenuItems((prev) => ({ ...prev, [categoryId]: data }));
     } catch (err) {
@@ -53,16 +57,7 @@ export default function CategoryPage({ hotelId }) {
 
   const handleDeleteCategory = async (id) => {
     if (!confirm("Delete this category?")) return;
-    await fetch(`/api/categories/${id}`, { method: "DELETE" });
-    fetchCategories();
-  };
-
-  const handleToggleVisibility = async (id, current) => {
-    await fetch(`/api/categories/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visible: !current }),
-    });
+    await fetch(`/api/hotels/${hotelId}/category/${id}`, { method: "DELETE" });
     fetchCategories();
   };
 
@@ -77,14 +72,16 @@ export default function CategoryPage({ hotelId }) {
 
   const handleMenuItemDelete = async (id, categoryId) => {
     if (!confirm("Delete this menu item?")) return;
-    await fetch(`/api/menu-items/${id}`, { method: "DELETE" });
+    await fetch(`/api/hotels/${hotelId}/items`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     fetchMenuItems(categoryId);
   };
 
   const sortedFilteredCategories = categories
-    .filter((cat) =>
-      cat.name.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((cat) => cat.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       const aVal = a[sortBy];
       const bVal = b[sortBy];
@@ -123,9 +120,6 @@ export default function CategoryPage({ hotelId }) {
                 Name {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
               <th className="px-4 py-2">Image</th>
-              <th onClick={() => handleSort("visible")} className="cursor-pointer px-4 py-2">
-                Visible {sortBy === "visible" && (sortOrder === "asc" ? "↑" : "↓")}
-              </th>
               <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
@@ -140,7 +134,7 @@ export default function CategoryPage({ hotelId }) {
               </tr>
             ) : (
               sortedFilteredCategories.map((cat) => (
-                <React.Fragment key={cat.id}>
+                <React.Fragment key={cat.category_id}>
                   <tr className="border-t hover:bg-gray-50">
                     <td className="px-4 py-2">{cat.name}</td>
                     <td className="px-4 py-2">
@@ -150,39 +144,36 @@ export default function CategoryPage({ hotelId }) {
                           alt="Category"
                           className="h-10 w-10 object-cover rounded"
                         />
-                      ) : <span className="text-gray-400">—</span>}
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
-                    <td className="px-4 py-2 text-center">{cat.visible ? "Yes" : "No"}</td>
                     <td className="px-4 py-2 space-x-2">
                       <button
-                        onClick={() => handleEditCategory(cat.id)}
+                        onClick={() => handleEditCategory(cat.category_id)}
                         className="text-blue-600 hover:underline"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteCategory(cat.id)}
+                        onClick={() => handleDeleteCategory(cat.category_id)}
                         className="text-red-600 hover:underline"
                       >
                         Delete
                       </button>
                       <button
-                        onClick={() => handleToggleVisibility(cat.id, cat.visible)}
-                        className="text-gray-700 hover:underline"
-                      >
-                        {cat.visible ? "Hide" : "Show"}
-                      </button>
-                      <button
-                        onClick={() => setActiveCategoryId(activeCategoryId === cat.id ? null : cat.id)}
+                        onClick={() =>
+                          setActiveCategoryId(activeCategoryId === cat.category_id ? null : cat.category_id)
+                        }
                         className="text-indigo-600 hover:underline"
                       >
-                        {activeCategoryId === cat.id ? "Hide Items" : "Show Items"}
+                        {activeCategoryId === cat.category_id ? "Hide Items" : "Show Items"}
                       </button>
                     </td>
                   </tr>
 
                   {/* Menu Items for this category */}
-                  {activeCategoryId === cat.id && (
+                  {activeCategoryId === cat.category_id && (
                     <tr>
                       <td colSpan="4" className="bg-gray-50 px-4 py-4">
                         <div className="flex justify-between items-center mb-2">
@@ -191,7 +182,7 @@ export default function CategoryPage({ hotelId }) {
                             size="sm"
                             onClick={() => {
                               setEditMenuItemId(null);
-                              setEditCategoryId(cat.id);
+                              setEditCategoryId(cat.category_id);
                               setShowForm("menuItem");
                             }}
                           >
@@ -199,10 +190,13 @@ export default function CategoryPage({ hotelId }) {
                           </Button>
                         </div>
 
-                        {menuItems[cat.id]?.length ? (
+                        {menuItems[cat.category_id]?.length ? (
                           <ul className="space-y-2">
-                            {menuItems[cat.id].map((item) => (
-                              <li key={item.id} className="flex justify-between items-center p-2 border rounded">
+                            {menuItems[cat.category_id].map((item) => (
+                              <li
+                                key={item.item_id}
+                                className="flex justify-between items-center p-2 border rounded"
+                              >
                                 <div>
                                   <div className="font-semibold">{item.name}</div>
                                   <div className="text-sm text-gray-500">{item.description}</div>
@@ -210,8 +204,8 @@ export default function CategoryPage({ hotelId }) {
                                 <div className="space-x-2">
                                   <button
                                     onClick={() => {
-                                      setEditMenuItemId(item.id);
-                                      setEditCategoryId(cat.id);
+                                      setEditMenuItemId(item.item_id);
+                                      setEditCategoryId(cat.category_id);
                                       setShowForm("menuItem");
                                     }}
                                     className="text-blue-600 hover:underline"
@@ -219,7 +213,7 @@ export default function CategoryPage({ hotelId }) {
                                     Edit
                                   </button>
                                   <button
-                                    onClick={() => handleMenuItemDelete(item.id, cat.id)}
+                                    onClick={() => handleMenuItemDelete(item.item_id, cat.category_id)}
                                     className="text-red-600 hover:underline"
                                   >
                                     Delete
@@ -253,7 +247,7 @@ export default function CategoryPage({ hotelId }) {
       )}
 
       {showForm === "menuItem" && (
-        <MenuItemForm
+        <HotelItemForm
           mode={editMenuItemId ? "edit" : "create"}
           menuItemId={editMenuItemId}
           categoryId={editCategoryId}

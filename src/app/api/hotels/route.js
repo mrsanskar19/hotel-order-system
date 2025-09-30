@@ -21,7 +21,16 @@ export async function POST(request) {
 
     // Required fields check
     if (!name || !username || !password) {
-      return new NextResponse("Missing required fields", { status: 400 });
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
+
+    // Check if username already exists
+    const existingHotel = await prisma.hotel.findUnique({
+      where: { username },
+    });
+
+    if (existingHotel) {
+      return NextResponse.json({ message: "Username already exists" }, { status: 409 });
     }
 
     const newHotel = await prisma.hotel.create({
@@ -34,8 +43,8 @@ export async function POST(request) {
         images,
         active_time,
         parcel_available,
-        is_active = true,
-        is_verify = true,
+        is_active: true,
+        is_verify: true,
         username,
         password,
         upi_id,
@@ -45,7 +54,7 @@ export async function POST(request) {
     return NextResponse.json(newHotel);
   } catch (error) {
     console.error("Error adding hotel:", error);
-    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -64,7 +73,7 @@ export async function GET() {
     return NextResponse.json(hotels);
   } catch (error) {
     console.error("Error fetching hotels:", error);
-    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -74,7 +83,7 @@ export async function DELETE(request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return new NextResponse("Missing hotel ID", { status: 400 });
+      return NextResponse.json({ message: "Missing hotel ID" }, { status: 400 });
     }
 
     await prisma.hotel.delete({
@@ -86,7 +95,7 @@ export async function DELETE(request) {
     return NextResponse.json({ message: "Hotel deleted successfully" });
   } catch (error) {
     console.error("Error deleting hotel:", error);
-    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -111,7 +120,7 @@ export async function PUT(request) {
     } = body;
 
     if (!hotel_id) {
-      return new NextResponse("Missing hotel ID", { status: 400 });
+      return NextResponse.json({ message: "Missing hotel ID" }, { status: 400 });
     }
 
     const updatedHotel = await prisma.hotel.update({
@@ -138,6 +147,6 @@ export async function PUT(request) {
     return NextResponse.json(updatedHotel);
   } catch (error) {
     console.error("Error updating hotel:", error);
-    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

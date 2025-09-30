@@ -8,7 +8,7 @@ export async function POST(request) {
     const body = await request.json();
     const { username, password } = body;
     if (!username || !password) {
-      return new NextResponse("Missing Info", { status: 400 });
+      return NextResponse.json({ message: "Missing Info" }, { status: 400 });
     }
 
     const [user] = await prisma.hotel.findMany({
@@ -18,7 +18,7 @@ export async function POST(request) {
     });
 
     if (!user || !user?.password) {
-      return new NextResponse("Invalid credentials", { status: 401 });
+      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
     const isCorrectPassword = await bcrypt.compare(
@@ -36,9 +36,9 @@ export async function POST(request) {
 
       return NextResponse.json({ token, user });
     }
-    return new NextResponse("Invalid credentials", { status: 401 });
+    return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
   } catch (error) {
     console.log(error, "LOGIN_ERROR");
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
