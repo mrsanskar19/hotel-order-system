@@ -1,0 +1,9 @@
+{
+  "extends":"./jsconfig.json",
+  "compilerOptions":{
+    "module":"CommonJS",
+    "outDir":".dist",
+    "moduleResolution":"Node",
+  },
+  "include":["server.js"]
+}
