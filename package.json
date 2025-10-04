@@ -6,7 +6,8 @@
     "dev": "node server.js",
     "build": "npx prisma generate && next build && ncc build server.js -o dist",
     "start": "NODE_ENV=production node dist/index.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:socket":"ncc build server.js -o dist"
   },
   "dependencies": {
     "@prisma/client": "^5.9.0",
@@ -35,5 +36,8 @@
     "eslint-config-next": "15.5.3",
     "prisma": "^5.9.0",
     "tailwindcss": "^4"
+  },
+  "engines": {
+    "node": ">=18.0.0 <19"
   }
 }
