@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node server.js",
-    "build": "next build && ncc build server.js -o dist",
+    "build": "npx prisma generate && next build && ncc build server.js -o dist",
     "start": "NODE_ENV=production node dist/index.js",
     "lint": "eslint"
   },
