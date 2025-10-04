@@ -6,3 +6,8 @@ export * from './button';
 export * from './input';
 export * from './modal';
 export * from './label';
+export * from './date-range-picker'
+export * from './select';
+export * from './separator';
+export * from './switch';
+export * from './tabs'

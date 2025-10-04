@@ -1,115 +1,159 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, createContext, useContext } from 'react'
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
-function Select({ children, className = '', onValueChange, defaultValue, ...props }) {
+// Context to share state across components
+const SelectContext = createContext()
+
+function Select({ children, defaultValue, onChange }) {
   const [open, setOpen] = useState(false)
-  const [selectedValue, setSelectedValue] = useState(defaultValue || null)
-  const triggerRef = useRef(null)
-  const contentRef = useRef(null)
+  const [selected, setSelected] = useState(defaultValue || null)
+  const menuRef = useRef(null)
 
-  // Close when clicked outside
   useEffect(() => {
-    function onClickOutside(e) {
-      if (
-        contentRef.current &&
-        !contentRef.current.contains(e.target) &&
-        triggerRef.current &&
-        !triggerRef.current.contains(e.target)
-      ) {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpen(false)
       }
     }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Handle selecting an item
-  function handleSelect(value) {
-    setSelectedValue(value)
+  const handleSelect = (option) => {
+    setSelected(option)
     setOpen(false)
-    if (onValueChange) onValueChange(value)
+    onChange?.(option)
   }
 
-  // Enhance children (Options / supporting parts)
-  const enhancedChildren = React.Children.map(children, child => {
-    if (!React.isValidElement(child)) return child
-    // Pass props to items
-    return React.cloneElement(child, {
-      selectedValue,
-      onSelect: handleSelect,
-      open,
-      setOpen,
-    })
-  })
-
   return (
-    <div className={`relative inline-block ${className}`} {...props}>
-      <SelectTrigger
-        ref={triggerRef}
-        open={open}
-        selectedValue={selectedValue}
-        onClick={() => setOpen(!open)}
-      />
-      {open && (
-        <SelectContent ref={contentRef}>{enhancedChildren}</SelectContent>
-      )}
-    </div>
+    <SelectContext.Provider
+      value={{ open, setOpen, selected, handleSelect, menuRef }}
+    >
+      <div className="relative inline-block w-64" ref={menuRef}>
+        {children}
+      </div>
+    </SelectContext.Provider>
   )
 }
 
-const SelectTrigger = React.forwardRef(
-  ({ open, selectedValue, onClick }, ref) => {
-    return (
-      <button
-        type="button"
-        ref={ref}
-        onClick={onClick}
-        className="border px-3 py-2 flex justify-between items-center bg-white"
-      >
-        {selectedValue ?? <span className="text-gray-500">Select...</span>}
-        <span style={{ marginLeft: '8px' }}>{open ? '▲' : '▼'}</span>
-      </button>
-    )
-  }
-)
+function SelectTrigger({ children, size = 'default' }) {
+  const { setOpen, open, selected } = useContext(SelectContext)
 
-function SelectContent({ children, ...props }, ref) {
+  const sizeClass = size === 'sm' ? 'h-8 text-sm' : 'h-9 text-sm'
+
+  return (
+    <button
+      type="button"
+      className={`w-full flex items-center justify-between border border-gray-300 bg-white px-3 py-2 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${sizeClass}`}
+      onClick={() => setOpen(!open)}
+      data-slot="select-trigger"
+      data-size={size}
+    >
+      <span className="truncate">{selected?.label || children}</span>
+      <ChevronDownIcon className="w-4 h-4 text-gray-400 ml-2" />
+    </button>
+  )
+}
+
+function SelectContent({ children }) {
+  const { open } = useContext(SelectContext)
+
+  if (!open) return null
+
+  return (
+    <ul
+      className="absolute z-10 mt-2 w-full max-h-60 overflow-auto rounded-md border border-gray-200 bg-white shadow-lg"
+      data-slot="select-content"
+    >
+      {children}
+    </ul>
+  )
+}
+
+function SelectItem({ children, value }) {
+  const { selected, handleSelect } = useContext(SelectContext)
+  const isSelected = selected?.value === value
+
+  return (
+    <li
+      onClick={() => handleSelect({ label: children, value })}
+      className={`flex items-center justify-between px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 ${
+        isSelected ? 'bg-gray-100 font-medium' : ''
+      }`}
+      data-slot="select-item"
+    >
+      <span>{children}</span>
+      {isSelected && <CheckIcon className="w-4 h-4 text-blue-500" />}
+    </li>
+  )
+}
+
+function SelectLabel({ children }) {
   return (
     <div
-      ref={ref}
-      className="absolute mt-1 w-full border bg-white shadow-lg z-10 max-h-60 overflow-auto"
-      {...props}
+      className="text-muted-foreground px-2 py-1.5 text-xs text-gray-500 uppercase"
+      data-slot="select-label"
     >
       {children}
     </div>
   )
 }
 
-const SelectItem = ({
-  value,
-  children,
-  selectedValue,
-  onSelect,
-  open,
-  setOpen,
-  className = '',
-  ...props
-}) => {
-  const isSelected = selectedValue === value
-
+function SelectSeparator() {
   return (
     <div
-      onClick={() => onSelect(value)}
-      className={`px-2 py-1 cursor-pointer ${
-        isSelected ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'
-      } ${className}`}
-      {...props}
-    >
+      className="bg-gray-200 pointer-events-none -mx-1 my-1 h-px"
+      data-slot="select-separator"
+    />
+  )
+}
+
+function SelectValue() {
+  const { selected } = useContext(SelectContext)
+  return (
+    <span data-slot="select-value" className="truncate">
+      {selected?.label}
+    </span>
+  )
+}
+
+function SelectGroup({ children }) {
+  return (
+    <div data-slot="select-group">
       {children}
-      {isSelected && <span style={{ float: 'right' }}>✔</span>}
     </div>
   )
 }
 
-export { Select, SelectItem }
+function SelectScrollUpButton() {
+  return (
+    <div className="flex items-center justify-center py-1 text-gray-400">
+      <ChevronUpIcon className="w-4 h-4" />
+    </div>
+  )
+}
+
+function SelectScrollDownButton() {
+  return (
+    <div className="flex items-center justify-center py-1 text-gray-400">
+      <ChevronDownIcon className="w-4 h-4" />
+    </div>
+  )
+}
+
+// Export all parts like original Radix-style API
+export {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+  SelectValue,
+  SelectGroup,
+}
+
