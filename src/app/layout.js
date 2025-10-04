@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <SocketProvider>
             <SidebarProvider>{children}</SidebarProvider>
-          </SocketProvider
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>
