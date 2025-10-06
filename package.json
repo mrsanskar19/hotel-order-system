@@ -3,9 +3,9 @@
   "version": "2.0.1",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
+    "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "NODE_ENV=production node index.js",
+    "start": "next start",
     "lint": "eslint",
     "build:socket":"ncc build ndex.js -o dist"
   },
