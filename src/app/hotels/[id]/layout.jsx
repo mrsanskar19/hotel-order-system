@@ -5,6 +5,9 @@ import { CartForm } from "@/components/form"
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react"
 import { BottomNav,HotelSidebar,AppHeader } from "@/components/layout";
+import { Home, List, ShoppingCart } from 'lucide-react';
+import { Sidebar } from "@/components/ui/sidebar"
+
 
 export default function layout({children}){
   const [cartVisible,setCartVisible] = useState(false);
@@ -12,6 +15,12 @@ export default function layout({children}){
   const [tableIdentifier,setTableIdentifier] = useState(null);
   const { id } = useParams();
   const searchParams = useSearchParams();
+
+  const navLinks = [
+    { href: '/home', label: 'Home', icon: Home },
+    { href: '/orders', label: 'Orders', icon: List },
+    { href: '/cart', label: 'Cart', icon: ShoppingCart },
+  ];
 
  useEffect(() => {
     const tableIdFromParams = searchParams.get('table_id');
@@ -45,11 +54,7 @@ export default function layout({children}){
   return (
    <CartProvider>
       <OrderProvider>
-      <HotelSidebar
-          hotelId={id}
-          onOpenCart={() => setCartVisible(!cartVisible)}
-        />
-      <AppHeader name={hotel?.name} table={tableIdentifier}/>
+      <Sidebar navLinks={navLinks} title="test">
 
         {/* Main layout container */}
         <div className="pt-16 md:pl-20 min-h-screen bg-gray-50 relative">
@@ -69,11 +74,8 @@ export default function layout({children}){
           {cartVisible && <CartForm isOpen={cartVisible} setIsOpen={setCartVisible} />}
 
           {/* BottomNav (Mobile only) */}
-          <BottomNav
-            onOpenCart={() => setCartVisible(!cartVisible)}
-            hotelId={id}
-          />
         </div>
+        </Sidebar>
       </OrderProvider>
     </CartProvider>
   )

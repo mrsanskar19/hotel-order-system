@@ -19,9 +19,9 @@ export default function AdminLayout({ children }) {
             </main>
           </div>
           {/* Mobile bottom navigation */}
-          <div className="lg:hidden">
+          {/* <div className="lg:hidden">
             <BottomNav />
-          </div>
+          </div> */}
         </div>
       </OrderProvider>
     </CartProvider>

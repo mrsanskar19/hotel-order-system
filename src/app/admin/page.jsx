@@ -151,13 +151,13 @@ export default function AdminPage() {
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+        return "bg-red-500/20 text-red-400 border-red-500/30"
       case "Preparing":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30"
+        return "bg-red-500/20 text-red-400 border-red-500/30"
       case "Ready":
-        return "bg-green-500/20 text-green-400 border-green-500/30"
+        return "bg-red-500/20 text-red-400 border-red-500/30"
       case "Delivered":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30"
+        return "bg-red-500/20 text-red-400 border-red-500/30"
       default:
         return "bg-muted text-muted-foreground"
     }
@@ -179,8 +179,8 @@ export default function AdminPage() {
             </div>
             {notifications.length > 0 && (
               <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-yellow-400" />
-                <span className="text-sm text-yellow-400">{notifications.length} new notifications</span>
+                <Bell className="h-4 w-4 text-red-400" />
+                <span className="text-sm text-red-400">{notifications.length} new notifications</span>
               </div>
             )}
           </div>
@@ -205,9 +205,9 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
+                <p className="text-2xl font-bold text-red-400">{stats.pending}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-400" />
+              <Clock className="h-8 w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -217,9 +217,9 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Preparing</p>
-                <p className="text-2xl font-bold text-blue-400">{stats.preparing}</p>
+                <p className="text-2xl font-bold text-red-400">{stats.preparing}</p>
               </div>
-              <ChefHat className="h-8 w-8 text-blue-400" />
+              <ChefHat className="h-8 w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -229,9 +229,9 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Ready</p>
-                <p className="text-2xl font-bold text-green-400">{stats.ready}</p>
+                <p className="text-2xl font-bold text-red-400">{stats.ready}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-400" />
+              <CheckCircle className="h-8 w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -241,9 +241,9 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Delivered</p>
-                <p className="text-2xl font-bold text-purple-400">{stats.delivered}</p>
+                <p className="text-2xl font-bold text-red-400">{stats.delivered}</p>
               </div>
-              <Truck className="h-8 w-8 text-purple-400" />
+              <Truck className="h-8 w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -328,7 +328,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                         {order.estimatedTime && order.status === "Preparing" && (
-                          <div className="mt-2 text-xs text-blue-400">
+                          <div className="mt-2 text-xs text-red-400">
                             Estimated completion: {order.estimatedTime} minutes
                           </div>
                         )}
@@ -385,9 +385,9 @@ export default function AdminPage() {
                     >
                       <div className="flex-shrink-0 mt-1">
                         {notification.type === "new_order" ? (
-                          <div className="h-2 w-2 bg-green-400 rounded-full"></div>
+                          <div className="h-2 w-2 bg-red-400 rounded-full"></div>
                         ) : (
-                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                          <div className="h-2 w-2 bg-red-400 rounded-full"></div>
                         )}
                       </div>
                       <div className="flex-1">

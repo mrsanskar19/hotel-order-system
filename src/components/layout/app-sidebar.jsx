@@ -15,7 +15,6 @@ import {
 } from 'react-icons/md';
 import { useCart } from '@/hook/useCart';
 import { useOrder } from '@/hook/useOrder';
-
 export function HotelSidebar({ onOpenCart, hotelId }) {
   const { cartItems } = useCart();
   const { tempOrder } = useOrder();
@@ -42,12 +41,20 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
       {/* Sidebar for Desktop */}
       <div className="hidden md:flex md:flex-col md:fixed md:top-0 md:left-0 md:h-full md:w-20 bg-gray-800 text-white shadow-lg z-50">
         <div className="flex flex-col items-center py-6 space-y-8 h-full mt-13">
-          <Link href={menuLink} className={`flex flex-col items-center gap-1 ${pathname === menuLink ? 'text-blue-400' : 'text-gray-300'} hover:text-blue-400`}>
+          <Link
+            href={menuLink}
+            className={`flex flex-col items-center gap-1 ${
+              pathname === menuLink ? 'text-blue-400' : 'text-gray-300'
+            } hover:text-blue-400`}
+          >
             <AiOutlineHome className="w-6 h-6" />
             <span className="text-xs">Menu</span>
           </Link>
           <div className="relative flex flex-col items-center gap-1">
-            <button onClick={onOpenCart} className="relative flex flex-col items-center text-gray-300 hover:text-blue-400">
+            <button
+              onClick={onOpenCart}
+              className="relative flex flex-col items-center text-gray-300 hover:text-blue-400"
+            >
               <AiOutlineShoppingCart className="w-6 h-6" />
               <span className="text-xs">Cart</span>
               {isClient && totalItems > 0 && (
@@ -57,7 +64,12 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
               )}
             </button>
           </div>
-          <Link href={ordersLink} className={`relative flex flex-col items-center gap-1 ${pathname === ordersLink ? 'text-blue-400' : 'text-gray-300'} hover:text-blue-400`}>
+          <Link
+            href={ordersLink}
+            className={`relative flex flex-col items-center gap-1 ${
+              pathname === ordersLink ? 'text-blue-400' : 'text-gray-300'
+            } hover:text-blue-400`}
+          >
             <MdOutlineListAlt className="w-6 h-6" />
             <span className="text-xs">Orders</span>
             {isClient && activeOrdersCount > 0 && (
@@ -68,16 +80,25 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
           </Link>
         </div>
       </div>
-      {/* Bottom Nav for Mobile */}
-       <div className="fixed bottom-0 left-0 right-0 h-20 bg-gray-800 text-white shadow-lg rounded-t-3xl z-50 md:hidden">
+
+      {/* Bottom nav for Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 h-20 bg-gray-800 text-white shadow-lg rounded-t-3xl z-50 md:hidden">
         <div className="max-w-md mx-auto h-full">
           <div className="grid grid-cols-3 items-center h-full text-center">
-            <Link href={menuLink} className={`flex flex-col items-center justify-center gap-1 h-full ${pathname === menuLink ? 'text-blue-400' : 'text-gray-300'}`}>
+            <Link
+              href={menuLink}
+              className={`flex flex-col items-center justify-center gap-1 h-full ${
+                pathname === menuLink ? 'text-blue-400' : 'text-gray-300'
+              }`}
+            >
               <AiOutlineHome className="w-6 h-6" />
               <span className="text-xs font-medium">Menu</span>
             </Link>
             <div className="relative flex justify-center">
-              <button onClick={onOpenCart} className="absolute -top-8 flex flex-col items-center justify-center gap-1 bg-gray-700 rounded-full w-16 h-16 border-4 border-gray-800 shadow-lg">
+              <button
+                onClick={onOpenCart}
+                className="absolute -top-8 flex flex-col items-center justify-center gap-1 bg-gray-700 rounded-full w-16 h-16 border-4 border-gray-800 shadow-lg"
+              >
                 <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-red-600 text-white">
                   <AiOutlineShoppingCart className="w-6 h-6" />
                   {isClient && totalItems > 0 && (
@@ -88,7 +109,12 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
                 </div>
               </button>
             </div>
-            <Link href={ordersLink} className={`flex flex-col items-center justify-center gap-1 h-full relative ${pathname === ordersLink ? 'text-blue-400' : 'text-gray-300'}`}>
+            <Link
+              href={ordersLink}
+              className={`flex flex-col items-center justify-center gap-1 h-full relative ${
+                pathname === ordersLink ? 'text-blue-400' : 'text-gray-300'
+              }`}
+            >
               <MdOutlineListAlt className="w-6 h-6" />
               <span className="text-xs font-medium">Orders</span>
               {isClient && activeOrdersCount > 0 && (
@@ -100,6 +126,9 @@ export function HotelSidebar({ onOpenCart, hotelId }) {
           </div>
         </div>
       </div>
+
+      {/* Spacer to prevent overlap with content */}
+      <div className="md:ml-20 mb-20"></div>
     </>
   );
 }
@@ -146,47 +175,66 @@ export function DashboardSidebar() {
     </>
   );
 }
-
 export function AdminSidebar() {
-    const pathname = usePathname();
-    const navLinks = [
-      { href: '/admin', label: 'Admin', icon: MdOutlineSecurity },
-      { href: '/admin/users', label: 'Users', icon: MdOutlineGroup },
-      { href: '/admin/settings', label: 'Settings', icon: MdOutlineSettings },
-    ];
-  
-    return (
-      <>
-        <aside className="hidden md:flex flex-col w-64 bg-gray-800 text-white min-h-screen p-4">
-          <nav>
-            <ul>
-              {navLinks.map((link) => {
-                  const Icon = link.icon
-                  return(
-                <li key={link.href} className="mb-2">
-                  <Link href={link.href} className={`flex items-center gap-2 p-2 rounded hover:bg-gray-700 ${pathname === link.href ? 'bg-gray-900' : ''}`}>
-                      <Icon className="h-6 w-6" />
-                      <span>{link.label}</span>
-                  </Link>
-                </li>
-              )})}
-            </ul>
-          </nav>
-        </aside>
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white flex justify-around md:hidden p-2">
-          {navLinks.map((link) => {
+  const pathname = usePathname();
+  const navLinks = [
+    { href: '/admin', label: 'Admin', icon: MdOutlineSecurity },
+    { href: '/admin/users', label: 'Users', icon: MdOutlineGroup },
+    { href: '/admin/settings', label: 'Settings', icon: MdOutlineSettings },
+  ];
+
+  return (
+    <>
+      {/* Sidebar for md+ screens - fixed left */}
+      <aside className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-4 hidden md:flex flex-col">
+        <nav aria-label="Admin Sidebar Navigation">
+          <ul>
+            {navLinks.map((link) => {
               const Icon = link.icon;
               return (
-              <Link key={link.href} href={link.href} className={`flex flex-col items-center text-xs ${pathname === link.href ? "text-blue-400" : ""}`}>
-                  <Icon className="h-6 w-6" />
-                  <span>{link.label}</span>
-              </Link>
+                <li key={link.href} className="mb-2">
+                  <Link
+                    href={link.href}
+                    className={`flex items-center gap-2 p-2 rounded hover:bg-gray-700 ${
+                      pathname === link.href ? 'bg-gray-900' : ''
+                    }`}
+                    aria-current={pathname === link.href ? 'page' : undefined}
+                  >
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                    <span>{link.label}</span>
+                  </Link>
+                </li>
               );
-          })}
-          </div>
-      </>
-    );
-  }
+            })}
+          </ul>
+        </nav>
+      </aside>
+
+      {/* Bottom nav for mobile screens - fixed bottom */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white flex justify-around p-2 md:hidden" aria-label="Admin Bottom Navigation">
+        {navLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex flex-col items-center text-xs ${
+                pathname === link.href ? 'text-blue-400' : ''
+              }`}
+              aria-current={pathname === link.href ? 'page' : undefined}
+            >
+              <Icon className="h-6 w-6" aria-hidden="true" />
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* To avoid content being hidden under fixed sidebar and bottom nav */}
+      <div className="md:ml-64 mb-14"></div>
+    </>
+  );
+}
 
 export function AppSidebar({ onOpenCart, hotelId }) {
   const pathname = usePathname();
