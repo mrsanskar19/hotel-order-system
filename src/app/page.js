@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import {AppHeader} from "@/components/layout/AppHeader"
 
  
 export default function Home({}) {
@@ -22,7 +23,7 @@ export default function Home({}) {
       </Head>
 
       {/* Hero Section with basic animation using Tailwind utilities */}
-      
+      <AppHeader/>
 
       {/* Hotels Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">

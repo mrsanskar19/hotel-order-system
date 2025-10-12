@@ -17,9 +17,9 @@ export default function layout({children}){
   const searchParams = useSearchParams();
 
   const navLinks = [
-    { href: '/home', label: 'Home', icon: Home },
-    { href: '/orders', label: 'Orders', icon: List },
-    { href: '/cart', label: 'Cart', icon: ShoppingCart },
+    { href: `/hotels/${id}`, label: 'Home', icon: Home },
+    { href: `/hotels/${id}/orders`, label: 'Orders', icon: List },
+    { href: `/hotels/${id}/cart`, label: 'Cart', icon: ShoppingCart },
   ];
 
  useEffect(() => {
@@ -54,7 +54,7 @@ export default function layout({children}){
   return (
    <CartProvider>
       <OrderProvider>
-      <Sidebar navLinks={navLinks} title="test">
+      <Sidebar navLinks={navLinks} title={hotel?.name || "Test Hotel"}>
 
         {/* Main layout container */}
         <div className="pt-16 md:pl-20 min-h-screen bg-gray-50 relative">

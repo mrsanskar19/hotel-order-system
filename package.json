@@ -7,10 +7,10 @@
     "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "build:socket":"ncc build ndex.js -o dist"
+    "build:socket": "ncc build ndex.js -o dist"
   },
   "dependencies": {
-    "@prisma/client": "^5.9.0",
+    "@prisma/client": "^6.17.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
