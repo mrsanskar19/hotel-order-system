@@ -3,7 +3,169 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql"jsx
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button"; // Assuming Shadcn UI
+import { Input } from "@/components/ui/input"; // Assuming Shadcn UI
+import { Textarea } from "@/components/ui/textarea"; // Assuming Shadcn UI
+import { Label } from "@/components/ui/label"; // Assuming Shadcn UI
+import { Checkbox } from "@/components/ui/checkbox"; // Assuming Shadcn UI
+import { useToast } from "@/components/ui/use-toast"; // Assuming Shadcn UI toast notifications
+
+const NewHotelPage = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    email: "",
+    phone: "",
+    address: "",
+    images: "", // Assuming images is a string for now (e.g., a URL or comma-separated URLs)
+    active_time: "",
+    parcel_available: true,
+    is_active: true, // Defaulting to true as per your API
+    is_verify: true, // Defaulting to true as per your API
+    username: "",
+    password: "",
+    upi_id: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast(); // Assuming you use Shadcn UI toast
+
+  const handleChange = (e) => {
+    const { id, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [id]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/hotels", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: "Hotel added successfully.",
+          variant: "success", // Assuming you have a success variant
+        });
+        router.push("/admin/hotels"); // Redirect to the hotels list page
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to add hotel.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding hotel:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Add New Hotel</h1>
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-1">
+          <Label htmlFor="name">Hotel Name</Label>
+          <Input id="name" value={formData.name} onChange={handleChange} required />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="username">Username</Label>
+          <Input id="username" value={formData.username} onChange={handleChange} required />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" value={formData.password} onChange={handleChange} required />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" value={formData.email} onChange={handleChange} />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="phone">Phone</Label>
+          <Input id="phone" type="tel" value={formData.phone} onChange={handleChange} />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="upi_id">UPI ID</Label>
+          <Input id="upi_id" value={formData.upi_id} onChange={handleChange} />
+        </div>
+
+        <div className="col-span-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea id="description" value={formData.description} onChange={handleChange} rows="4" />
+        </div>
+
+        <div className="col-span-2">
+          <Label htmlFor="address">Address</Label>
+          <Textarea id="address" value={formData.address} onChange={handleChange} rows="3" />
+        </div>
+
+        <div className="col-span-2">
+          <Label htmlFor="images">Images (URLs)</Label>
+          <Input id="images" value={formData.images} onChange={handleChange} placeholder="Enter image URLs, comma-separated if multiple" />
+        </div>
+
+        <div className="col-span-1">
+          <Label htmlFor="active_time">Active Time</Label>
+          <Input id="active_time" value={formData.active_time} onChange={handleChange} placeholder="e.g., 9 AM - 10 PM" />
+        </div>
+
+        <div className="col-span-1 flex items-center space-x-2 mt-6">
+          <Checkbox id="parcel_available" checked={formData.parcel_available} onCheckedChange={(checked) => setFormData({...formData, parcel_available: checked})} />
+          <Label htmlFor="parcel_available">Parcel Available</Label>
+        </div>
+
+        {/* is_active and is_verify are defaulted to true as per API, but you can add checkboxes if needed */}
+        {/* <div className="col-span-1 flex items-center space-x-2 mt-6">
+          <Checkbox id="is_active" checked={formData.is_active} onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} />
+          <Label htmlFor="is_active">Is Active</Label>
+        </div>
+        <div className="col-span-1 flex items-center space-x-2 mt-6">
+          <Checkbox id="is_verify" checked={formData.is_verify} onCheckedChange={(checked) => setFormData({...formData, is_verify: checked})} />
+          <Label htmlFor="is_verify">Is Verified</Label>
+        </div> */}
+
+        <div className="col-span-2">
+          <Button type="submit" disabled={loading}>
+            {loading ? "Adding..." : "Add Hotel"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default NewHotelPage;
+
   url      = env("DATABASE_URL")
 }
 
