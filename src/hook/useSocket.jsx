@@ -1,93 +1,87 @@
-"use client"
+'use client';
 
-// Socket.IO React hook
-import { useEffect, useRef, useState } from "react"
-import { socket } from "@/lib/socket"
+import { useEffect, useRef, useState } from "react";
+import { socket } from "@/lib/socket";
 
 export function useSocket() {
-  const [isConnected, setIsConnected] = useState(false)
-  const socketRef = useRef(null)
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = socket.connect()
+    // Connect to the socket server
+    socketRef.current = socket.connect();
 
-    const handleConnect = () => setIsConnected(true)
-    const handleDisconnect = () => setIsConnected(false)
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
 
-    socketRef.current.on("connect", handleConnect)
-    socketRef.current.on("disconnect", handleDisconnect)
+    socketRef.current.on("connect", handleConnect);
+    socketRef.current.on("disconnect", handleDisconnect);
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.off("connect", handleConnect)
-        socketRef.current.off("disconnect", handleDisconnect)
+        socketRef.current.off("connect", handleConnect);
+        socketRef.current.off("disconnect", handleDisconnect);
+        socketRef.current.disconnect();
       }
-    }
-  }, [])
+    };
+  }, []);
 
+  // Wrapper for emitting events
   const emit = (event, data) => {
-    if (socketRef.current) {
-      socketRef.current.emit(event, data)
+    if (socketRef.current && socketRef.current.connected) {
+      socketRef.current.emit(event, data);
     }
-  }
+  };
 
+  // Wrapper for listening to events
   const on = (event, callback) => {
     if (socketRef.current) {
-      socketRef.current.on(event, callback)
+      socketRef.current.on(event, callback);
     }
-  }
+  };
 
+  // Wrapper for removing event listeners
   const off = (event, callback) => {
     if (socketRef.current) {
-      socketRef.current.off(event, callback)
+      socketRef.current.off(event, callback);
     }
-  }
+  };
 
-  return { socket: socketRef.current, isConnected, emit, on, off }
+  // Function to get dashboard data
+  const getDashboardData = () => {
+    emit("dashboard:get-data");
+  };
+
+  // Function to get active orders
+  const getActiveOrders = () => {
+    emit("orders:get-active");
+  };
+
+  // Function to place a new order
+  const placeOrder = (orderData) => {
+    emit("orders:place-new", orderData);
+  };
+
+  // Function to update an existing order
+  const updateOrder = (orderId, updates) => {
+    emit("orders:update", { orderId, ...updates });
+  };
+
+  // Function to close an order
+  const closeOrder = (orderId) => {
+    emit("orders:close", { orderId });
+  };
+
+  return {
+    socket: socketRef.current,
+    isConnected,
+    emit,
+    on,
+    off,
+    getDashboardData,
+    getActiveOrders,
+    placeOrder,
+    updateOrder,
+    closeOrder,
+  };
 }
-
-export function useOrderSocket(hotelId) {
-  const { socket, isConnected, emit, on, off } = useSocket()
-  const [orders, setOrders] = useState([])
-  const [notifications, setNotifications] = useState([])
-
-  useEffect(() => {
-    if (socket && isConnected && hotelId) {
-      socket.emit("join-hotel", hotelId)
-
-      const handleNewOrder = (orderData) => {
-        setOrders((prev) => [orderData, ...prev])
-        setNotifications((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            type: "order",
-            message: `New order #${orderData.id} received`,
-            timestamp: new Date(),
-          },
-        ])
-      }
-
-      const handleOrderUpdate = (data) => {
-        setOrders((prev) =>
-          prev.map((order) => (order.id === data.orderId ? { ...order, status: data.status } : order)),
-        )
-      }
-
-      on("order-received", handleNewOrder)
-      on("order-status-changed", handleOrderUpdate)
-
-      return () => {
-        off("order-received", handleNewOrder)
-        off("order-status-changed", handleOrderUpdate)
-      }
-    }
-  }, [socket, isConnected, hotelId, on, off])
-
-  const updateOrderStatus = (orderId, status) => {
-    emit("order-status-update", { orderId, status, hotelId })
-  }
-
-  return { orders, notifications, updateOrderStatus }
-}
-

@@ -1,31 +1,57 @@
+'use client';
 import Head from 'next/head';
-import Image from 'next/image';
-import {AppHeader} from "@/components/layout/AppHeader"
+import { AppHeader } from "@/components/layout/app-header";
+import { Skeleton } from '@/components/ui/skeleton';
+import HotelCard from '@/components/ui/hotel-card';
+import { useEffect, useState } from 'react';
 
- 
-export default function Home({}) {
-  
+export default function Home() {
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const hotels = [
-    { name: 'Luxury Hotel', image: '/luxury-hotel-exterior.png' },
-    { name: 'Ocean Resort', image: '/ocean-resort.jpg' },
-    { name: 'Cozy Lodge', image: '/cozy-mountain-lodge.png' },
-    { name: 'Modern Stay', image: '/modern-hotel.png' },
-  ];
+  useEffect(() => {
+    const fetchHotels = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/hotels');
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+          throw new Error(errorData.message || `API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid data format from API. Expected an array.");
+        }
+
+        setHotels(data);
+
+      } catch (err) {
+        console.error('Failed to fetch hotels:', err);
+        setError(err.message);
+        setHotels([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHotels();
+  }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen">
- 
       <Head>
         <title>Explore Our Hotels</title>
         <meta name="description" content="Find and book amazing hotels" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* Hero Section with basic animation using Tailwind utilities */}
-      <AppHeader/>
+      <AppHeader />
 
-      {/* Hotels Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Partner Hotels</h2>
@@ -33,55 +59,52 @@ export default function Home({}) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {hotels.map((hotel, index) => {
- return (
-              <div
-                key={hotel.name}
-                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-2"
-              >
-                <div className="relative h-60 w-full overflow-hidden">
-                  <Image
-                    src={hotel.image}
-                    alt={hotel.name}
-                    layout="fill"
-                    objectFit="cover"
-                    className="transition-transform duration-300 hover:scale-110"
-                  />
-                </div>
+          {loading && (
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <Skeleton className="h-60 w-full" />
                 <div className="p-6">
-                  <h3 className="text-2xl font-semibold text-gray-800 mb-3">{hotel.name}</h3>
-                  <p className="text-gray-600 mb-4">Discover exquisite comfort and world-class service at {hotel.name}.</p>
-                  <button className="w-full bg-red-600 text-white py-2 rounded-md font-semibold hover:bg-red-700 transition duration-300">
-                    Explore Our Partners
-                  </button>
+                  <Skeleton className="h-8 w-3/4 mb-4" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-5/6" />
                 </div>
               </div>
-            );
-          })}
+            ))
+          )}
+
+          {error && !loading && (
+            <div className="col-span-full text-center text-red-500">
+              <p>Error: {error}</p>
+              <p>Could not load hotel information. Please try again later.</p>
+            </div>
+          )}
+
+          {!loading && !error && (
+            hotels.length > 0 ? (
+              hotels.map((hotel) => (
+                <HotelCard key={hotel.id || hotel.hotel_id} hotel={hotel} />
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                <p>No partner hotels found at the moment.</p>
+              </div>
+            )
+          )}
         </div>
       </section>
 
-      {/* Bet Hero Section with basic animation using Tailwind utilities */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-red-700 text-white text-center">
-        <h2
-          className="text-4xl font-bold mb-4"
-
-        >
+        <h2 className="text-4xl font-bold mb-4">
           Experience the Thrill with Bet Hero
         </h2>
-        <p
-          className="text-xl mb-8"
-        >
+        <p className="text-xl mb-8">
           Discover exciting opportunities and elevate your experience.
         </p>
-        {/* Add more content related to Bet Hero here */}
       </section>
 
-      {/* Footer Placeholder */}
       <footer className="bg-gray-800 text-white text-center py-8">
         <p>&copy; 2023 Hotel Booking. All rights reserved.</p>
       </footer>
     </div>
- 
- );
+  );
 }
